@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "126a608dd35b5aec",
+        "id": "11b0120c93501022",
         "type": "tabs",
         "children": [
           {
-            "id": "da33f8588142ecb9",
+            "id": "a0afa6177c98ea9d",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -157,13 +157,33 @@
               "icon": "lucide-list",
               "title": "Outline"
             }
+          },
+          {
+            "id": "ad32cfbcd9351224",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {},
+              "icon": "calendar-with-checkmark",
+              "title": "Calendar"
+            }
+          },
+          {
+            "id": "46e37f4c145bcc7d",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
           }
-        ]
+        ],
+        "currentTab": 6
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 200
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -173,14 +193,30 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "obsidian-git:Open Git source control": false,
+      "omnisearch:Omnisearch": false,
+      "templater-obsidian:Templater": false
     }
   },
-  "active": "da33f8588142ecb9",
+  "active": "a0afa6177c98ea9d",
   "lastOpenFiles": [
-    "Recommended Plugins.md",
-    "Getting Started.md",
     "00_Inbox/Welcome to Inbox.md",
+    "00_Inbox/Untitled.md",
+    "03_Resources/Dev Tools/Claude Code Pre-Prompt Strategies.md",
+    "Recommended Plugins.md",
+    "00_Inbox/Untitled 1.md",
+    "Untitled.canvas",
+    "03_Resources/Dev Tools/BPMN 2.0 - Process-Driven Requirement Engineering.md",
+    "03_Resources/Business/Solopreneur - หัวใจของการเริ่มต้น.md",
+    "03_Resources/Business",
+    "03_Resources/Dev Tools",
+    "Boywatz Second Brain/03_Resources/Dev Tools/Claude Code Pre-Prompt Strategies.md",
+    "Boywatz Second Brain/03_Resources/Dev Tools",
+    "Boywatz Second Brain/03_Resources",
+    "Boywatz Second Brain",
+    "Claude Project Instructions.md",
+    "Getting Started.md",
     "Home.md",
     "Templates/MOC Template.md",
     "Templates/Fleeting Note.md",
@@ -193,10 +229,6 @@
     "05_Assets/Attachments",
     "05_Assets",
     "04_Archive",
-    "03_Resources",
-    "02_Areas",
-    "01_Projects",
-    "00_Inbox",
     "test.md"
   ]
 }
