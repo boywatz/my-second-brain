@@ -22,8 +22,8 @@ Level 3: Advanced (Production-Grade & Scalability)
 
 ### Topics
 
-- [ ] **การเปลี่ยน Mindset** จาก "Private Network (VPC)" มาเป็น "Global Network"
-- [ ] **Cloudflare Global Network Architecture** — ทำความเข้าใจว่า Cloudflare ไม่ได้ทำงานเป็น Region เหมือน Cloud ทั่วไป แต่รันอยู่บน 330+ เมืองทั่วโลก (Anycast Network)
+- [x] **การเปลี่ยน Mindset** จาก "Private Network (VPC)" มาเป็น "Global Network"
+- [x] **Cloudflare Global Network Architecture** — ทำความเข้าใจว่า Cloudflare ไม่ได้ทำงานเป็น Region เหมือน Cloud ทั่วไป แต่รันอยู่บน 330+ เมืองทั่วโลก (Anycast Network)
 - [ ] **Edge DNS & Proxy Logic** — การจัดการ DNS records และการทำงานของ Proxy (CDN/WAF)
 - [ ] **SSL/TLS Termination** — การทำ End-to-End Encryption ในระดับโปรดักชัน (Full Strict)
 - [ ] **Cloudflare Tunnel (Zero Trust Connectivity)** — การเชื่อมต่อ Docker Containers หรือ On-premise Server เข้ากับ Cloudflare โดยไม่ต้องเปิด Public IP (Inbound ports)
