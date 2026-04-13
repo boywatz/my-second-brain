@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "01_Projects/Learning-Cloudflare-Developer-Zero-Hero.md",
+                "file": "03_Resources/Dev Tools/BPMN 2.0 - Process-Driven Requirement Engineering.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Learning-Cloudflare-Developer-Zero-Hero"
+              "title": "BPMN 2.0 - Process-Driven Requirement Engineering"
             }
           }
         ]
@@ -203,8 +203,9 @@
       "templater-obsidian:Templater": false
     }
   },
-  "active": "0611c3daa548f86e",
+  "active": "2eb77bcd04c2e2b6",
   "lastOpenFiles": [
+    "01_Projects/Learning-Cloudflare-Developer-Zero-Hero.md",
     "01_Projects/Legacy codebase soda_shop_api/SYSTEM_DESIGN_REWRITE.md",
     "01_Projects/Legacy codebase soda_shop_api/ARCHITECTURE.md",
     "01_Projects/Legacy codebase soda_shop_api/REVERSE_ENGINEERING.md",
@@ -218,7 +219,6 @@
     "01_Projects/Legacy codebase soda_shop_api/CONVENTIONS.md",
     "01_Projects/Legacy codebase soda_shop_api/CONCERNS.md",
     "01_Projects/Legacy codebase soda_shop_api",
-    "01_Projects/Learning-Cloudflare-Developer-Zero-Hero.md",
     "03_Resources/Dev Tools/BPMN 2.0 - Process-Driven Requirement Engineering.md",
     "SOUL.md",
     "00_Inbox/Welcome to Inbox.md",
