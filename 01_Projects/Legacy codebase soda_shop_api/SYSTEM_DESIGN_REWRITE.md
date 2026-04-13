@@ -37,7 +37,7 @@
 11. [Authentication & Authorization Design](#authentication--authorization-design)
     - 11.1 Auth Provider Selection (Better Auth vs Clerk vs Auth.js)
     - 11.2 User Schema (Better Auth auto-managed tables)
-    - 11.3 Authentication Flows (Better Auth: Login, Register, Logout, Password Change)
+    - 11.3 Authentication Flows (Better Auth: Login, Register, OAuth2 Google, Logout, Password Change)
     - 11.4 Session Management (Better Auth DB-backed sessions + KV edge cache)
     - 11.5 RBAC — Better Auth plugin + 4 Roles + Permissions Matrix
     - 11.6 Anonymous Checkout Flow
@@ -762,6 +762,8 @@ vars = { ENVIRONMENT = "production" }
 # Secrets (ไม่ store ใน wrangler.toml)
 # wrangler secret put JWT_SECRET --env production
 # wrangler secret put OMISE_SECRET --env production
+# wrangler secret put GOOGLE_CLIENT_ID --env production
+# wrangler secret put GOOGLE_CLIENT_SECRET --env production
 ```
 
 ```bash
@@ -1938,6 +1940,27 @@ import { db } from "./db"; // Drizzle D1 instance
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "sqlite" }),
   emailAndPassword: { enabled: true },
+  
+  // ─── OAuth2 Providers ───────────────────────────────────
+  // Google เป็น provider แรก — extend เพิ่มได้ง่าย (Facebook, LINE, etc.)
+  socialProviders: {
+    google: {
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      // scope ที่ขอจาก Google (default: openid, email, profile)
+      // เพิ่ม scope ได้ตามต้องการ
+    },
+    // ── เพิ่ม provider ภายหลัง ──
+    // facebook: {
+    //   clientId: env.FACEBOOK_APP_ID,
+    //   clientSecret: env.FACEBOOK_APP_SECRET,
+    // },
+    // line: {
+    //   clientId: env.LINE_CHANNEL_ID,
+    //   clientSecret: env.LINE_CHANNEL_SECRET,
+    // },
+  },
+  
   user: {
     // Custom fields เพิ่มเข้า user table
     additionalFields: {
@@ -2022,7 +2045,7 @@ CREATE TABLE verification (
 - ไม่ต้องจัดการ password hashing เอง — Better Auth ใช้ scrypt (built-in) หรือ config เป็น Argon2id ได้
 - `role` เป็น custom field ใน `user` table — เพียงพอสำหรับ 4 roles
 - `session` table แทน stateless JWT — revoke session ได้ทันทีโดยไม่ต้อง blacklist
-- `account` table รองรับ OAuth ในอนาคต (Google, Facebook) โดยไม่ต้อง schema change
+- `account` table รองรับ OAuth — Google provider (MVP), extend LINE/Facebook ภายหลัง; user 1 คนมีหลาย accounts ได้ (credential + google + line)
 - `verification` table จัดการ email verification + forgot password ให้อัตโนมัติ
 
 #### Addresses Table (แยกจาก User)
@@ -2101,7 +2124,8 @@ Better Auth provides these endpoints automatically:
 | `/api/auth/reset-password` | POST | Reset password ด้วย token |
 | `/api/auth/change-password` | POST | เปลี่ยน password (ต้อง login) |
 | `/api/auth/verify-email` | GET | Verify email จาก link |
-| `/api/auth/sign-in/social` | POST | OAuth login (Google, Facebook) |
+| `/api/auth/sign-in/social` | POST | เริ่ม OAuth flow (redirect ไป Google) |
+| `/api/auth/callback/google` | GET | Google OAuth callback (Better Auth จัดการ token exchange + session) |
 
 #### Login Flow (Better Auth)
 
@@ -2143,6 +2167,139 @@ Client                        Hono Worker                    D1 Database
   │  { user, session }             │                               │
   │ ◄───────────────────────────── │                               │
 ```
+
+#### OAuth2 Flow — Google Sign-In (Better Auth)
+
+> **Phase 1:** Google provider เท่านั้น — extend เพิ่ม Facebook, LINE ฯลฯ ภายหลังโดยแค่เพิ่ม config ใน `socialProviders`
+
+```
+Client (Browser)              Hono Worker              Google OAuth       D1 Database
+  │                                │                        │                  │
+  │  1. User clicks               │                        │                  │
+  │     "Sign in with Google"     │                        │                  │
+  │                                │                        │                  │
+  │  POST /api/auth/sign-in/social│                        │                  │
+  │  { provider: "google",        │                        │                  │
+  │    callbackURL: "/auth/cb" }  │                        │                  │
+  │ ─────────────────────────────►│                        │                  │
+  │                                │                        │                  │
+  │  { url: "accounts.google.com  │                        │                  │
+  │    /o/oauth2/v2/auth?..." }   │                        │                  │
+  │ ◄─────────────────────────────│                        │                  │
+  │                                │                        │                  │
+  │  2. Redirect → Google consent │                        │                  │
+  │ ──────────────────────────────────────────────────────►│                  │
+  │                                │                        │                  │
+  │  3. User grants permission    │                        │                  │
+  │ ◄──────────────────────────────────────────────────────│                  │
+  │  Redirect back with ?code=xxx │                        │                  │
+  │                                │                        │                  │
+  │  GET /api/auth/callback/google│                        │                  │
+  │  ?code=xxx&state=yyy          │                        │                  │
+  │ ─────────────────────────────►│                        │                  │
+  │                                │  4. Exchange code      │                  │
+  │                                │  POST /token           │                  │
+  │                                │ ──────────────────────►│                  │
+  │                                │  { access_token,       │                  │
+  │                                │    id_token }          │                  │
+  │                                │ ◄──────────────────────│                  │
+  │                                │                        │                  │
+  │                                │  5. Fetch user profile │                  │
+  │                                │  GET /userinfo         │                  │
+  │                                │ ──────────────────────►│                  │
+  │                                │  { email, name, image }│                  │
+  │                                │ ◄──────────────────────│                  │
+  │                                │                        │                  │
+  │                                │  6. Better Auth:                          │
+  │                                │  ┌─ User exists (email match)?            │
+  │                                │  │  YES → Link account + create session   │
+  │                                │  │  NO  → Create user (role=customer)     │
+  │                                │  │        + create account (google)        │
+  │                                │  │        + create session                 │
+  │                                │  └───────────────────────────────────────►│
+  │                                │                                           │
+  │  Set-Cookie: session_token=...│                                           │
+  │  Redirect → callbackURL       │                                           │
+  │ ◄─────────────────────────────│                                           │
+```
+
+**Account Linking Strategy:**
+
+Better Auth จัดการ account linking ให้อัตโนมัติ — ถ้า user เคย register ด้วย email + password แล้ว login ด้วย Google (email เดียวกัน) → Better Auth จะ link Google account เข้า user เดิม ไม่สร้าง user ใหม่
+
+| สถานการณ์ | ผลลัพธ์ |
+|-----------|---------|
+| Google login ครั้งแรก (email ไม่เคยมี) | สร้าง user ใหม่ (role=customer) + account (google) |
+| Google login (email ตรงกับ user ที่มีอยู่) | Link Google account เข้า user เดิม |
+| Email login หลัง Google signup | ❌ ไม่ได้ (ไม่มี password) ต้อง set password ก่อน |
+| Google login + Email login (ทั้งคู่) | ✅ ได้ทั้งสองแบบ (2 accounts ใน 1 user) |
+
+**Client-side Integration (Frontend):**
+
+```typescript
+// packages/web-storefront/src/lib/auth-client.ts
+import { createAuthClient } from "better-auth/client";
+
+export const authClient = createAuthClient({
+  baseURL: "https://api.sodabkk.com",
+});
+
+// Google Sign-In button handler
+async function signInWithGoogle() {
+  await authClient.signIn.social({
+    provider: "google",
+    callbackURL: "/auth/callback",  // redirect กลับหลัง Google consent
+  });
+}
+
+// Auth callback page — /auth/callback
+// Better Auth จัดการ token exchange + session creation ให้อัตโนมัติ
+// Frontend แค่ redirect user กลับ home หรือ previous page
+```
+
+**Google OAuth Credentials Setup:**
+
+```bash
+# 1. สร้าง OAuth 2.0 Client ID ที่ Google Cloud Console
+#    https://console.cloud.google.com/apis/credentials
+#
+# 2. Config:
+#    - Application type: Web application
+#    - Authorized redirect URIs: 
+#      https://api.sodabkk.com/api/auth/callback/google
+#      http://localhost:8787/api/auth/callback/google (dev)
+#
+# 3. เก็บ credentials ใน Wrangler secrets:
+wrangler secret put GOOGLE_CLIENT_ID
+wrangler secret put GOOGLE_CLIENT_SECRET
+```
+
+**Extend Providers ในอนาคต:**
+
+เพิ่ม provider ใหม่แค่ 3 ขั้นตอน:
+
+1. สร้าง OAuth credentials จาก provider (Google Console, Facebook Developer, LINE Developer Console)
+2. เพิ่ม config ใน `socialProviders` ของ Better Auth
+3. เพิ่ม Wrangler secrets สำหรับ client ID + secret
+
+```typescript
+// ตัวอย่าง: เพิ่ม LINE Login (popular ในไทย)
+socialProviders: {
+  google: { ... },
+  line: {
+    clientId: env.LINE_CHANNEL_ID,
+    clientSecret: env.LINE_CHANNEL_SECRET,
+  },
+},
+```
+
+| Provider | ความสำคัญ | เมื่อไหร่ | หมายเหตุ |
+|----------|----------|-----------|---------|
+| **Google** | สูง | MVP (Week 2) | Provider แรก, ครอบคลุม user base กว้าง |
+| LINE | กลาง | Post-MVP | Popular ในไทย, เหมาะกับ customer segment |
+| Facebook | ต่ำ | ถ้า user request | ใช้งานลดลง, privacy concerns |
+
+---
 
 #### Logout Flow (Better Auth)
 
@@ -2734,7 +2891,7 @@ export function optionalAuth() {
 | No input validation | ✅ แก้แล้ว | Zod validators on all endpoints |
 | ไม่มี email verification | ✅ เพิ่มใหม่ | Better Auth built-in email verification |
 | ไม่มี forgot password | ✅ เพิ่มใหม่ | Better Auth built-in password reset flow |
-| ไม่มี OAuth | ✅ พร้อมเพิ่ม | Better Auth รองรับ 30+ OAuth providers (เปิดเมื่อต้องการ) |
+| ไม่มี OAuth | ✅ เพิ่มแล้ว | Google OAuth (MVP) ผ่าน Better Auth, extend LINE/Facebook ภายหลัง |
 | Unauthenticated order history | ✅ แก้แล้ว | Requires email + order number (anonymous) หรือ session (registered) |
 
 ---
@@ -2743,7 +2900,7 @@ export function optionalAuth() {
 
 | คำถาม | ผลกระทบ | สถานะ | หมายเหตุ |
 |--------|---------|--------|----------|
-| ต้องการ OAuth (Google/Facebook login) หรือไม่? | เพิ่ม OAuth provider config | ⏳ Week 2 | Better Auth รองรับ 30+ providers — แค่เพิ่ม config เมื่อต้องการ |
+| ~~ต้องการ OAuth (Google/Facebook login) หรือไม่?~~ | เพิ่ม OAuth provider config | ✅ ตัดสินใจแล้ว | **Google OAuth (MVP Week 2)** → extend LINE, Facebook ภายหลัง |
 | Email verification flow | ต้องการ email service (Resend/SES) | ⏳ Week 2 | Better Auth built-in — แค่ต้อง config email transport |
 | Forgot password flow | ต้องการ email service | ⏳ Week 2 | Better Auth built-in — ใช้ email link (ไม่ใช่ OTP) |
 | Admin user แรกสร้างอย่างไร? | Deployment strategy | ⏳ Week 1 | Seed script ผ่าน Better Auth API หรือ direct D1 insert |
