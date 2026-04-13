@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "01_Projects/Legacy codebase soda_shop_api/REVERSE_ENGINEERING.md",
+                "file": "01_Projects/Learning-Cloudflare-Developer-Zero-Hero.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "REVERSE_ENGINEERING"
+              "title": "Learning-Cloudflare-Developer-Zero-Hero"
             }
           }
         ]
@@ -203,11 +203,13 @@
       "templater-obsidian:Templater": false
     }
   },
-  "active": "2eb77bcd04c2e2b6",
+  "active": "0611c3daa548f86e",
   "lastOpenFiles": [
-    "03_Resources/caveman-plugin.md",
-    "01_Projects/Legacy codebase soda_shop_api/Index.md",
+    "01_Projects/Legacy codebase soda_shop_api/SYSTEM_DESIGN_REWRITE.md",
+    "01_Projects/Legacy codebase soda_shop_api/ARCHITECTURE.md",
     "01_Projects/Legacy codebase soda_shop_api/REVERSE_ENGINEERING.md",
+    "01_Projects/Legacy codebase soda_shop_api/Index.md",
+    "03_Resources/caveman-plugin.md",
     "03_Resources/Dev Tools/Legacy Migration - เปลี่ยนหัวใจขณะคนไข้ยังวิ่ง.md",
     "01_Projects/Legacy codebase soda_shop_api/TESTING.md",
     "01_Projects/Legacy codebase soda_shop_api/STRUCTURE.md",
@@ -215,7 +217,6 @@
     "01_Projects/Legacy codebase soda_shop_api/INTEGRATIONS.md",
     "01_Projects/Legacy codebase soda_shop_api/CONVENTIONS.md",
     "01_Projects/Legacy codebase soda_shop_api/CONCERNS.md",
-    "01_Projects/Legacy codebase soda_shop_api/ARCHITECTURE.md",
     "01_Projects/Legacy codebase soda_shop_api",
     "01_Projects/Learning-Cloudflare-Developer-Zero-Hero.md",
     "03_Resources/Dev Tools/BPMN 2.0 - Process-Driven Requirement Engineering.md",
@@ -237,7 +238,6 @@
     "Getting Started.md",
     "Home.md",
     "Templates/MOC Template.md",
-    "Templates/Fleeting Note.md",
     "Templates",
     "05_Assets/Images",
     "05_Assets/Attachments",
