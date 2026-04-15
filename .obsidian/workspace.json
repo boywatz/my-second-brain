@@ -205,6 +205,8 @@
   },
   "active": "2eb77bcd04c2e2b6",
   "lastOpenFiles": [
+    "01_Projects/Learning-Cloudflare-Developer-Zero-Hero/Edge-DNS-Proxy-SSL-TLS.md",
+    "01_Projects/Learning-Cloudflare-Developer-Zero-Hero",
     "01_Projects/Legacy codebase soda_shop_api/TESTING.md",
     "01_Projects/Legacy codebase soda_shop_api/STRUCTURE.md",
     "01_Projects/Legacy codebase soda_shop_api/STACK.md",
@@ -237,10 +239,8 @@
     "Claude Project Instructions.md",
     "Getting Started.md",
     "Home.md",
-    "Templates/MOC Template.md",
     "Templates",
     "05_Assets/Images",
-    "05_Assets/Attachments",
-    "05_Assets"
+    "05_Assets/Attachments"
   ]
 }
